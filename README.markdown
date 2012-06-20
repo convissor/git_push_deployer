@@ -24,6 +24,10 @@ On your remote server:
 	git add .
 	git commit -am 'Initial commit.'
 
+	# Add any special needs you have to the "utilities/pre_deploy_script"
+	# and "utilities/post_deploy_script" scripts.  Then commit them:
+	git commit -am 'My customizations to the pre/post deploy scripts.'
+
 On your local box:
 
 	git clone ssh://<user>@<host>/<path>
