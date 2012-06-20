@@ -9,7 +9,7 @@
 # * If this is a "bare" repository or the refs pushed don't include the
 #   checked out branch, let the push proceed, but do nothing special with it.
 # * Updates files in the "utilities" directory, if any.
-# * Runs "utilities/pre_deploy_script", if any.  If the pre-deploy script
+# * Runs "utilities/pre_deploy_script", if any.  If this step
 #   fails, don't update the remaining files.
 # * Updates the remaining files from the index.
 # * Runs "utilities/post_deploy_script", if any.
