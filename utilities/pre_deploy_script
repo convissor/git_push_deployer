@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# This script is automatically executed by the Git post-update hook on your
+# remote server BEFORE the main files are updated (but after files in the
+# "utilities" directory are updated).
+#
+# You can write this script in any language.  Just put the appropriate
+# shebang line at the top.
+
+
+rev_id_new=$1
+
+echo "> >  Pre-Deploy Script DONE"

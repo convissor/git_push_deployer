@@ -1,0 +1,156 @@
+#! /bin/bash
+
+# Git Push Deployer
+#
+# This is the pre-receive script.  Git executes it before updating any of the
+# refs received in a push.  This script is paired with my post-update script.
+#
+# This script does the following:
+# * If the working tree is in a detatched HEAD state, reject the push.
+# * If this is a "bare" repository or the refs pushed don't include the
+#   checked out branch, let the push proceed, but do nothing special with it.
+# * Stash any uncommitted modifications that exist on the server.  But if the
+#   stash fails, reject the push.
+# * Provides instructions on how to revert the changes being pushed.  If the
+#   "backup" directory exists, creates a script holding the revert commands.
+#
+# Author: Daniel Convissor <danielc@analysisandsolutions.com>
+# License: http://www.analysisandsolutions.com/software/license.htm
+# Link: http://github.com/convissor/git_push_deployer
+
+
+# SETTINGS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+# Directory where the pre and post deployment scripts reside.
+# Path is relative to $GIT_WORK_TREE.
+dir_backups=backups
+
+# Directory where the pre and post deployment scripts reside.
+# Path is relative to $GIT_WORK_TREE.
+dir_util=utilities
+
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+function process () {
+	ref=$1
+	line=$2
+
+	rev_id_prior=${line%% *}
+	rev_id_prior=${rev_id_prior:0:10}
+
+	rev_id_new=${line:${#rev_id_prior}+1}
+	rev_id_new=${rev_id_new%% *}
+	rev_id_new=${rev_id_new:0:10}
+
+	cmd_stash=
+
+	cd "$git_work_tree_full"
+
+	echo "Push included checked out branch, '$ref'."
+
+	status=`git status --untracked-files=no --porcelain`
+	if [ -n "$status" ] ; then
+		echo "--------------------------------------------------" >&2
+		echo "WARNING: uncommitted changes on the server will be stashed:" >&2
+		echo "$status" >&2
+		echo "--------------------------------------------------" >&2
+
+		# Stashing requires the work tree's file system to be writable.
+		# Execute the unlock script if it exists.
+		name="$dir_util/unlock.sh"
+		if [ -x "$name" ] ; then
+			"./$name"
+		fi
+
+		git stash save -q "Before update to $rev_id_new"
+		if [ $? -ne 0 ] ; then
+			echo "ERROR: stash failed. Go clean up the server and try again." >&2
+			exit 1
+		fi
+
+		rev_id_stash=`git stash list -n 1 --pretty=format:%H 2> /dev/null`
+		rev_id_stash=${rev_id_stash:0:10}
+		cmd_stash="git stash pop $rev_id_stash"
+	fi
+
+	if [ ! -d "$dir_backups" ] ; then
+		# Backup directory does not exist.  Say how to do revert manually.
+		echo_notice "git checkout $rev_id_prior" "$cmd_stash"
+		exit
+	fi
+
+	# Create a script of commands to revert the current changes.
+	file_restore="$dir_backups/restore-to-before-$rev_id_new.sh"
+	generate_script "git checkout $rev_id_prior" "$cmd_stash"
+	echo_notice "'./$file_restore'"
+}
+
+function echo_notice () {
+	echo "--------------------------------------------------"
+	echo "NOTICE: your push will update the live site."
+	echo ""
+	echo "If something breaks, you can revert to the existing"
+	echo "version by SSH'ing into the server and calling:"
+	echo ""
+	echo "    cd '$git_work_tree_full'"
+
+	for cmd in "$@" ; do
+		echo "    $cmd"
+	done
+
+	echo "--------------------------------------------------"
+}
+
+function generate_script () {
+	cat > "$file_restore" <<EOM
+#! /bin/bash
+
+# Reverts the checkout to the point before any of the changes
+# made in the push that brought the repository to revision
+# $rev_id_new.
+
+EOM
+
+	for cmd in "$@" ; do
+		echo "$cmd" >> "$file_restore"
+	done
+
+	chmod 770 "$file_restore"
+}
+
+git update-server-info
+
+git_dir_full=$(cd "$GIT_DIR"; pwd)
+export GIT_DIR="$git_dir_full"
+
+# Use ".." if $GIT_WORK_TREE is not set, then turn it into a full path.
+GIT_WORK_TREE=${GIT_WORK_TREE-..}
+git_work_tree_full=$(cd "$GIT_WORK_TREE"; pwd)
+
+if [ `git config --get --bool core.bare` = "true" ] ; then
+	# This is a "bare" repository.
+	# There is no checkout, so nothing needs to be done.
+	exit
+fi
+
+# Determine which branch is currently checked out.
+branch_active=`git symbolic-ref HEAD 2> /dev/null`
+if [ -z "$branch_active" ] ; then
+	# In a detached HEAD state.  Nothing needs doing.
+	echo "--------------------------------------------------" >&2
+	echo "WARNING: remote repository is in a detached HEAD state." >&2
+	echo "Changes will not be automatically deployed." >&2
+	echo "--------------------------------------------------" >&2
+	exit
+fi
+
+# Git passes the name of each ref (e.g. branch) to STDIN.
+# Loop over each, looking for the one that's checked out on the server.
+while read line ; do
+	# Format: <prior revision id> <newest revision id> <ref>
+	ref=${line#* * }
+	if [ "$ref" = "$branch_active" ] ; then
+		process "$ref" "$line"
+	fi
+done

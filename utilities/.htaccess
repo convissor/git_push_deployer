@@ -1,0 +1,5 @@
+# While this directory should be outside the document root, I'm putting these
+# directives here in case end users put this directory in the document root.
+
+Satisfy all
+Deny from all

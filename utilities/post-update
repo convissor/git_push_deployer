@@ -1,0 +1,144 @@
+#! /bin/bash
+
+# Git Push Deployer
+#
+# This is the post-update script.  Git executes it after updating all of the
+# refs received in a push.  This script is paired with my post-update script.
+#
+# This script does the following:
+# * If this is a "bare" repository or the refs pushed don't include the
+#   checked out branch, let the push proceed, but do nothing special with it.
+# * Updates files in the "utilities" directory, if any.
+# * Runs "utilities/pre_deploy_script", if any.  If the pre-deploy script
+#   fails, don't update the remaining files.
+# * Updates the remaining files from the index.
+# * Runs "utilities/post_deploy_script", if any.
+#
+# Author: Daniel Convissor <danielc@analysisandsolutions.com>
+# License: http://www.analysisandsolutions.com/software/license.htm
+# Link: http://github.com/convissor/git_push_deployer
+
+
+# SETTINGS vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+# Directory where the pre and post deployment scripts reside.
+# Path is relative to $GIT_WORK_TREE.
+dir_util=utilities
+
+# Script to execute BEFORE the main files are updated (but after files in
+# the "utilities" directory are updated).
+file_pre_deploy_script="$dir_util/pre_deploy_script"
+
+# Script to execute AFTER all files are updated.
+file_post_deploy_script="$dir_util/post_deploy_script"
+
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+function process () {
+	ref=$1
+
+	cd "$git_work_tree_full"
+
+	# Indicate which files are being modified.
+	git diff-index -R --name-status HEAD
+
+	echo "About to remove files in '$dir_util'..."
+
+	# Remove existing files.
+	# Subsequent steps will replace files that are still in the index.
+	if [ -d "$dir_util" ] ; then
+		rm -rf "$dir_util"/*
+	else
+		mkdir "$dir_util"
+	fi
+
+	echo "About to replace files in '$dir_util'..."
+
+	# Examine the index for all files in the utilities directory.
+	#
+	# NOTE: don't pipe the command; doing so would start a sub-shell
+	# with its own scope.
+	while read object ; do
+		# Format: <mode> <type> <id> <name>
+		mode=`echo "$object" | sed -E 's/^(\w+).*/\1/'`
+		id=`echo "$object" | sed -E 's/^\w+\s+\w+\s+(\w+).*/\1/'`
+		name=`echo "$object" | sed -E 's/^\w+\s+\w+\s+\w+\s(.*)$/\1/'`
+
+		# Make sure the destination directory exists.
+		dir_name=`dirname "$name"`
+		if [ ! -d "$dir_name" ] ; then
+			mkdir -p "$dir_name"
+		fi
+
+		# Manually extract the file from the index and put it in place.
+		tmp_file=`git unpack-file $id`
+		if [ "$mode" = "120000" ] ; then
+			# Hey, this is a symbolic link.
+			link_to=`cat "$tmp_file"`
+			ln -s "$link_to" "$name"
+			rm "$tmp_file"
+		else
+			# Regular file.
+			mv -f "$tmp_file" "$name"
+			if [ "$mode" = "100755" ] ; then
+				chmod +x "$name"
+			fi
+		fi
+	done < <(git ls-tree -r "$ref" "$dir_util")
+
+	rev_id_new=`git log "$ref" -n 1 --pretty=format:%H`
+	rev_id_new=${rev_id_new:0:10}
+
+	# Execute the pre-deployment script if possible.
+	if [ -x "$file_pre_deploy_script" ] ; then
+		echo "About to execute Pre-Deploy Script..."
+		"./$file_pre_deploy_script" $rev_id_new
+		if [ $? -ne 0 ] ; then
+			echo "--------------------------------------------------" >&2
+			echo "ERROR: '$file_pre_deploy_script' had a problem" >&2
+			echo "Checked out files will NOT be updated to match the index." >&2
+			echo "Go clean up the server and try again." >&2
+			echo "--------------------------------------------------" >&2
+			exit 1
+		fi
+	fi
+
+	echo "Updating remaining files with data from the index..."
+	git reset --hard HEAD
+
+	# Execute the post-deployment script if possible.
+	if [ -x "$file_post_deploy_script" ] ; then
+		echo "About to execute Post-Deploy Script..."
+		"./$file_post_deploy_script" $rev_id_new
+		if [ $? -ne 0 ] ; then
+			echo "ERROR: '$file_post_deploy_script' had a problem" >&2
+			exit 1
+		fi
+	fi
+}
+
+
+git_dir_full=$(cd "$GIT_DIR"; pwd)
+export GIT_DIR="$git_dir_full"
+
+# Use ".." if $GIT_WORK_TREE is not set, then turn it into a full path.
+GIT_WORK_TREE=${GIT_WORK_TREE-..}
+git_work_tree_full=$(cd "$GIT_WORK_TREE"; pwd)
+
+if [ `git config --get --bool core.bare` = "true" ] ; then
+	# This is a "bare" repository.
+	# There is no checkout, so nothing needs to be done.
+	exit
+fi
+
+# Determine which branch is currently checked out.
+branch_active=`git symbolic-ref HEAD 2> /dev/null`
+
+# Git passes the name of each ref (e.g. branch) as a parameter.
+# Loop over each, looking for the one that's checked out on the server.
+for ref in "$@" ; do
+	if [ "$ref" = "$branch_active" ] ; then
+		process "$ref"
+	fi
+done

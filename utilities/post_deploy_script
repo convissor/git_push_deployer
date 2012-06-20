@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# This script is automatically executed by the Git post-update hook on your
+# remote server AFTER all of the files have been updated.
+#
+# You can write this script in any language.  Just put the appropriate
+# shebang line at the top.
+
+
+rev_id_new=$1
+
+echo "> >  Post-Deploy Script DONE"
