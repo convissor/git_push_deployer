@@ -50,3 +50,5 @@ with repositories that don't have any commits and utilize files in the
 "utilities" directory without running into the following errors:
 * `fatal: bad revision 'HEAD'`
 * `warning: Log .git/logs/HEAD has gap after`
+* `warning: Log for 'HEAD' only has 1 entries.`
+* `fatal: ambiguous argument 'HEAD@{1}': unknown revision or path not in the working tree.`
