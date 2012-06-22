@@ -13,32 +13,32 @@ driven sites in general.  They'll be incorporated here shortly.
 
 Installation
 ------------
-
-On your remote server:
+This is but one way to use this process.  This method permits you to
+easily merge my changes into your system.  On your _remote_ server, do the
+following:
 
 	git clone git://github.com/convissor/git_push_deployer.git
 
-	mkdir <project>
-	cd <project>
-	git init
+	mv git_push_deployer <your project name>
+	cd <your project name>
 	git config receive.denyCurrentBranch ignore
 
-	cp -R ../git_push_deployer/* .
 	ln -s ../../utilities/post-update .git/hooks/post-update
 	ln -s ../../utilities/pre-receive .git/hooks/pre-receive
 
-	git add .
-	git commit -am 'Initial commit.'
+Then, on your local box:
 
-	# Add any special needs you have to the "utilities/pre_deploy_script"
-	# and "utilities/post_deploy_script" scripts.  Then commit them:
-	git commit -am 'My customizations to the pre/post deploy scripts.'
+	git clone ssh://<user>@<host>/<path>/<your project name>
+	cd <your project name>
+	git remote add git_push_deployer git://github.com/convissor/git_push_deployer.git
 
-On your local box:
-
-	git clone ssh://<user>@<host>/<path>
-	cd <project>
 	# Make, add, and commit the changes you desire.
+
+	# To deploy your changes, do this:
+	git push origin master
+
+	# To get any changes I've made to the system:
+	git pull git_push_deployer master
 	git push origin master
 
 
