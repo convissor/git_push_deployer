@@ -5,6 +5,12 @@ A pair of Git hooks, plus some other scripts, that let you deploy
 projects using `git push`.
 
 
+To Do
+-----
+I've got some sweet tools for managing WordPress installations and database
+driven sites in general.  They'll be incorporated here shortly.
+
+
 Installation
 ------------
 
