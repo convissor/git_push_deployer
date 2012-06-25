@@ -1,12 +1,25 @@
-#! /bin/bash
+#! /bin/bash -e
 
-# This script is automatically executed by the Git post-update hook on your
-# remote server AFTER all of the files have been updated.
-#
-# You can write this script in any language.  Just put the appropriate
-# shebang line at the top.
+if [[ $1 == "-h" || $1 == "--help" || $1 == "help" ]] ; then
+	echo "Usage:  ./pre_deploy_script rev_id_new"
+	echo "  @param string rev_id_new  the newest revision id"
+	echo ""
+	echo "This script is automatically executed by our Git post-update hook"
+	echo "on your remote server AFTER all of the files have been updated."
+	echo ""
+	echo "Author: Daniel Convissor <danielc@analysisandsolutions.com>"
+	echo "License: http://www.analysisandsolutions.com/software/license.htm"
+	echo "Link: https://github.com/convissor/git_push_deployer"
+	exit 1
+fi
 
 
 rev_id_new=$1
+
+dir_util="$(cd "$(dirname "$0")" && pwd)"
+source "$dir_util/config.sh"
+
+# Make directories and files read-only, making attacks more difficult.
+"$dir_util/lock.sh"
 
 echo "> >  Post-Deploy Script DONE"

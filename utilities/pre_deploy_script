@@ -1,13 +1,58 @@
 #! /bin/bash
 
-# This script is automatically executed by the Git post-update hook on your
-# remote server BEFORE the main files are updated (but after files in the
-# "utilities" directory are updated).
-#
-# You can write this script in any language.  Just put the appropriate
-# shebang line at the top.
+if [[ $1 == "-h" || $1 == "--help" || $1 == "help" ]] ; then
+	echo "Usage:  ./pre_deploy_script rev_id_new"
+	echo "  @param string rev_id_new  the newest revision id"
+	echo ""
+	echo "This script is automatically executed by our Git post-update hook"
+	echo "on your remote server BEFORE the main files are updated (but after"
+	echo "files in the 'utilities' directory are updated)."
+	echo ""
+	echo "Author: Daniel Convissor <danielc@analysisandsolutions.com>"
+	echo "License: http://www.analysisandsolutions.com/software/license.htm"
+	echo "Link: https://github.com/convissor/git_push_deployer"
+	exit 1
+fi
 
 
 rev_id_new=$1
+
+dir_util="$(cd "$(dirname "$0")" && pwd)"
+source "$dir_util/config.sh"
+source "$dir_util/auth_info.sh"
+
+if [ -f "$file_sql_push_flag" ] ; then
+	file_restore="$dir_backups/restore-to-before-$rev_id_new.sh"
+	file_sql_backup="$dir_backups/database-before-$rev_id_new.sql"
+
+	# Backup the existing database before making changes.
+	"$dir_util/database-dump.sh" "$file_sql_backup" \
+		&& bzip2 "$file_sql_backup"
+	if [ $? -ne 0 ] ; then
+		echo "ERROR: sql backup had a problem."
+		exit 1
+	fi
+
+	# Append the commands for reverting the database changes that'll be made.
+	echo "" >> "$file_restore"
+	echo "bunzip2 '$file_sql_backup.bz2'" >> "$file_restore"
+	echo "source '$dir_util/config.sh'" >> "$file_restore"
+	echo 'mysql -u "$db_user" --password="$db_password" "$db_name" \\' >> "$file_restore"
+	echo "    < '$file_sql_backup'" >> "$file_restore"
+
+	# Replace the database.
+	mysql -u "$db_user" --password="$db_password" "$db_name" < "$file_sql_dump"
+	if [ $? -ne 0 ] ; then
+		echo "ERROR: sql import had a problem."
+		exit 1
+	fi
+fi
+
+# Make directories and files writable so changes can be deployed.
+"$dir_util/unlock.sh"
+if [ $? -ne 0 ] ; then
+	echo "ERROR: unlocking files had a problem."
+	exit 1
+fi
 
 echo "> >  Pre-Deploy Script DONE"
