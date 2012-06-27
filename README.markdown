@@ -12,6 +12,14 @@ Branches
 * __wordpress__:  additional utilities for managing WordPress installations
 
 
+Contents
+--------
+* `pre_deploy_script`: runs on the remote BEFORE the main files are updated
+* `post_deploy_script`: runs on the remote AFTER all files have been updated
+* `lock.sh`:  makes files and directories read-only
+* `unlock.sh`:  makes files and directories writable
+
+
 Installation for the `master` Branch
 ------------------------------------
 This is but one way to use this process.  This method permits you to
@@ -34,6 +42,8 @@ Then, on your local box:
 	git remote add git_push_deployer git://github.com/convissor/git_push_deployer.git
 
 	# Make, add, and commit the changes you desire.
+	# NOTE: Put your files in the public_html directory and make that
+	# the document root for your web server.
 
 	# To deploy your changes, do this:
 	git push origin master
