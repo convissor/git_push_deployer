@@ -30,8 +30,8 @@ Contents
 * `change-url-prod.php`:  sets WordPress' site URL to the live/produciton value
 
 
-Installation
-------------
+Installation for the `wordpress` Branch
+---------------------------------------
 This is but one way to use this process.  This method permits you to
 easily merge my changes into your system.  On your _remote_ server, do the
 following:
