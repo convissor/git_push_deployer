@@ -14,6 +14,8 @@ Branches
 
 Contents
 --------
+* `pre_deploy_script`: runs on the remote BEFORE the main files are updated
+* `post_deploy_script`: runs on the remote AFTER all files have been updated
 * `database-pull.sh`:  gets a database from the remote server using via SSH
 * `push-with-database.sh`:  pushes the local files and database to the remote
 * `database-dump.sh`:  dumps the database in a Git-friendly format
@@ -60,6 +62,8 @@ Then, on your local box:
 	git commit -am 'My settings.'
 
 	# Make, add, and commit any other changes you desire.
+	# NOTE: Put your files in the public_html directory and make that
+	# the document root for your web server.
 
 	git checkout master
 	git merge dev
