@@ -34,6 +34,9 @@ Contents
 
 Installation for the `wordpress` Branch
 ---------------------------------------
+
+WARNING: These instructions are an experimental draft.
+
 This is but one way to use this process.  This method permits you to
 easily merge my changes into your system.  On your _remote_ server, do the
 following:
@@ -52,9 +55,15 @@ following:
 	git mv wp-* public_html
 	git commit -am 'Move WP files into public_html.'
 
+	# Create your development branch.
+	git checkout -b dev34
+
 	git remote add -t wordpress git_push_deployer \
 		git://github.com/convissor/git_push_deployer.git
 	git pull git_push_deployer wordpress
+
+	# Create your production release branch.
+	git checkout -b master
 
 	ln -s ../../utilities/post-update .git/hooks/post-update
 	ln -s ../../utilities/pre-receive .git/hooks/pre-receive
@@ -64,17 +73,17 @@ Then, on your local box:
 	git clone ssh://<user>@<host>/<path>/wp
 	cd wp
 
+	# Rename the remote to clarify the role (and match config.sh).
+	git remote rename origin prod
+
 	# Add remotes locally so you can update things here.
 	git remote add -t 3.4-branch -f wp \
 		https://github.com/WordPress/WordPress
-	git remote add -t wordpress git_push_deployer \
+	git remote add -t wordpress -f git_push_deployer \
 		git://github.com/convissor/git_push_deployer.git
-	git pull git_push_deployer wordpress
-
-	# Create your development branch.
-	git checkout -b dev34
 
 	# Adjust WordPress settings.
+	git checkout dev34
 	ln -s wp-config-sample.php public_html/wp-config.php
 	git add public_html/wp-config.php
 	vim public_html/wp-config.php
@@ -90,11 +99,8 @@ Then, on your local box:
 	# NOTE: Put your files in the public_html directory and make that
 	# the document root for your web server.
 
-	# Create the production release branch.
-	git checkout -b master
-
-	# Rename the remote to clarify the role (and match config.sh).
-	git remote rename origin prod
+	git checkout master
+	git merge dev34
 
 	# To deploy your changes, do this.
 	git push prod master
