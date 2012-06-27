@@ -17,11 +17,11 @@ source "$dir_util/config.sh"
 
 echo "> >  Locking file system..."
 
-find "$dir_doc_root" -type d -not -path "$dir_uploads"\* \
+find "$dir_doc_root" -type d \
 	-exec chmod 2550 {} \;
-find "$dir_doc_root" -type f -not -name \*.sh -not -path "$dir_uploads"\* \
+find "$dir_doc_root" -type f -not -name \*.sh \
 	-exec chmod 440 {} \;
-find "$dir_doc_root" -type f -name \*.sh -not -path "$dir_uploads"\* \
+find "$dir_doc_root" -type f -name \*.sh \
 	-exec chmod 550 {} \;
 
 echo "> >  File system LOCKED."

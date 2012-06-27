@@ -35,6 +35,3 @@ else
 	echo "ERROR: '$src' does not exist."
 	exit 1
 fi
-
-php "$dir_util/change-url-local.php"
-php "$dir_util/database-garbage-collection.php"

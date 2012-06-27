@@ -48,12 +48,9 @@ echo -n "Hit ENTER to proceed or CTRL-C to cancel..."
 read -e
 
 git checkout "$git_branch_dev"
-php "$dir_util/database-garbage-collection.php"
-php "$dir_util/change-url-prod.php"
 "$dir_util/database-dump.sh" "$file_sql_dump"
 git commit -m 'Latest local database.' "$file_sql_dump"
 id=`git log -n 1 --pretty=format:%H`
-php "$dir_util/change-url-local.php"
 
 git checkout "$git_branch_prod"
 git cherry-pick "$id"

@@ -1,17 +1,9 @@
 # Your local development branch.
-git_branch_dev=dev34
+git_branch_dev=dev
 
 # Your production release remote and branch.
 git_remote_prod=prod
 git_branch_prod=master
-
-# WordPress' active remote and release branch.
-git_remote_origin_url=https://github.com/WordPress/WordPress
-git_remote_origin=wp
-# The remote branch name that holds WP's release branch.
-git_branch_origin=3.4-branch
-# The local branch name for holding WP's release branch.
-git_branch_dev_merge=wp34
 
 
 # You probably shouldn't touch the settings below here.

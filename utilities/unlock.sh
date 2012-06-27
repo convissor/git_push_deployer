@@ -17,11 +17,11 @@ source "$dir_util/config.sh"
 
 echo "> >  Unlocking file system..."
 
-find "$dir_doc_root" -type d -not -path "$dir_uploads"\* \
+find "$dir_doc_root" -type d \
 	-exec chmod 2770 {} \;
-find "$dir_doc_root" -type f -not -name \*.sh -not -path "$dir_uploads"\* \
+find "$dir_doc_root" -type f -not -name \*.sh \
 	-exec chmod 660 {} \;
-find "$dir_doc_root" -type f -name \*.sh -not -path "$dir_uploads"\* \
+find "$dir_doc_root" -type f -name \*.sh \
 	-exec chmod 770 {} \;
 
 echo "> >  File system UNLOCKED."
