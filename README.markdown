@@ -12,8 +12,8 @@ Branches
 * __wordpress__:  additional utilities for managing WordPress installations
 
 
-Installation
-------------
+Installation for the `master` Branch
+------------------------------------
 This is but one way to use this process.  This method permits you to
 easily merge my changes into your system.  On your _remote_ server, do the
 following:
