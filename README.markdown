@@ -26,6 +26,9 @@ Contents
 
 Installation for the `database` Branch
 --------------------------------------
+
+WARNING: These instructions are an experimental draft.
+
 This is but one way to use this process.  This method permits you to
 easily merge my changes into your system.  On your _remote_ server, do the
 following:
@@ -39,6 +42,12 @@ following:
 		git://github.com/convissor/git_push_deployer.git
 	git pull git_push_deployer database
 
+	# Create your development branch.
+	git checkout -b dev
+
+	# Create your production release branch.
+	git checkout -b master
+
 	ln -s ../../utilities/post-update .git/hooks/post-update
 	ln -s ../../utilities/pre-receive .git/hooks/pre-receive
 
@@ -47,12 +56,12 @@ Then, on your local box:
 	git clone ssh://<user>@<host>/<path>/<project>
 	cd <project>
 
-	git remote add -t database git_push_deployer \
+	# Rename the remote to clarify the role (and match config.sh).
+	git remote rename origin prod
+
+	git remote add -t database -f git_push_deployer \
 		git://github.com/convissor/git_push_deployer.git
 	git pull git_push_deployer database
-
-	# Create your development branch.
-	git checkout -b dev
 
 	# Adjust Git Push Deployer settings.
 	vim auth_info.sh
@@ -67,9 +76,6 @@ Then, on your local box:
 
 	git checkout master
 	git merge dev
-
-	# Rename the remote to clarify the role (and match config.sh).
-	git remote rename origin prod
 
 	# To deploy your changes, do this.
 	git push prod master
