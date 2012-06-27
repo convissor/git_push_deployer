@@ -8,8 +8,8 @@ projects using `git push`.
 Branches
 --------
 * __master__:  tools for deploying standard, file based sites
+* __database__:  utilities for managing database driven sites
 * __wordpress__:  additional utilities for managing WordPress installations
-and database driven sites in general
 
 
 To Do
