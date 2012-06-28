@@ -33,21 +33,18 @@ This is but one way to use this process.  This method permits you to
 easily merge my changes into your system.  On your _remote_ server, do the
 following:
 
+	# Create your repository.
 	mkdir <project>
 	cd <project>
 	git init
 	git config receive.denyCurrentBranch ignore
 
+	# Get my WordPress tools.
 	git remote add -t database git_push_deployer \
 		git://github.com/convissor/git_push_deployer.git
 	git pull git_push_deployer database
 
-	# Create your development branch.
-	git checkout -b dev
-
-	# Create your production release branch.
-	git checkout -b master
-
+	# Make links for the scripts so we can keep them up to date.
 	ln -s ../../utilities/post-update .git/hooks/post-update
 	ln -s ../../utilities/pre-receive .git/hooks/pre-receive
 
@@ -59,6 +56,10 @@ Then, on your local box:
 	# Rename the remote to clarify the role (and match config.sh).
 	git remote rename origin prod
 
+	# Create your development branch.
+	git checkout -b dev
+
+	# Provide the ability to get my WordPress tools locally.
 	git remote add -t database -f git_push_deployer \
 		git://github.com/convissor/git_push_deployer.git
 	git pull git_push_deployer database
@@ -74,17 +75,15 @@ Then, on your local box:
 	# NOTE: Put your files in the public_html directory and make that
 	# the document root for your web server.
 
+	# Bring changes into the production release branch.
 	git checkout master
 	git merge dev
 
-	# To deploy your changes, do this.
-	git push prod master
+	# Now push the database and files up to production.
+	./utilities/push-with-database.sh
 
-	# To get any changes I and/or WordPress have made.
-	git checkout dev
-	git pull git_push_deployer database
-	git checkout master
-	git merge dev
+	# In the future, if you just want to push files, do this
+	# (after merging changes into master from the development branch).
 	git push prod master
 
 
