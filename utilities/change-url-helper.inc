@@ -4,6 +4,8 @@
  * Helper for changing the site url througout WordPress
  * @author Daniel Convissor <danielc@analysisandsolutions.com>
  * @license http://www.analysisandsolutions.com/software/license.htm Simple Public License
+ * @link https://github.com/convissor/git_push_deployer
+ * @package git_push_deployer
  */
 
 /**#@+
