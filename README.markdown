@@ -41,30 +41,18 @@ This is but one way to use this process.  This method permits you to
 easily merge my changes into your system.  On your _remote_ server, do the
 following:
 
+	# Create your repository.
 	mkdir wp
 	cd wp
 	git init
 	git config receive.denyCurrentBranch ignore
 
-	git remote add -t 3.4-branch -f wp \
-		https://github.com/WordPress/WordPress
-	git checkout -b wp34 wp/3.4-branch
-
-	mkdir public_html
-	git mv *.html *.php *.txt public_html
-	git mv wp-* public_html
-	git commit -am 'Move WP files into public_html.'
-
-	# Create your development branch.
-	git checkout -b dev34
-
-	git remote add -t wordpress git_push_deployer \
+	# Get my WordPress tools.
+	git remote add -t wordpress -f git_push_deployer \
 		git://github.com/convissor/git_push_deployer.git
 	git pull git_push_deployer wordpress
 
-	# Create your production release branch.
-	git checkout -b master
-
+	# Make links for the scripts so we can keep them up to date.
 	ln -s ../../utilities/post-update .git/hooks/post-update
 	ln -s ../../utilities/pre-receive .git/hooks/pre-receive
 
@@ -76,14 +64,34 @@ Then, on your local box:
 	# Rename the remote to clarify the role (and match config.sh).
 	git remote rename origin prod
 
-	# Add remotes locally so you can update things here.
-	git remote add -t 3.4-branch -f wp \
-		https://github.com/WordPress/WordPress
+	# Get WordPress.
+	git remote add -t 3.4-branch -f wp https://github.com/WordPress/WordPress
+	git checkout -b wp34 wp/3.4-branch
+
+	# Move WordPress into the public_html directory.
+	mkdir public_html
+	git mv *.html *.php *.txt public_html
+	git mv wp-* public_html
+	git commit -am 'Move WP files into public_html.'
+
+	# Create your development branch.
+	git checkout -b dev34
+
+	# Bring in the Git Push Deploy utilities.
+	git merge master
+
+	# Provide the ability to get my WordPress tools locally.
 	git remote add -t wordpress -f git_push_deployer \
 		git://github.com/convissor/git_push_deployer.git
+	git pull git_push_deployer wordpress
 
 	# Adjust WordPress settings.
-	git checkout dev34
+	#
+	# Improve your security by adding the following to wp-config.php:
+	# define('DISALLOW_UNFILTERED_HTML', true);
+	#
+	# On development boxes, set "WP_DEBUG" to "true" in wp-config.php.
+	#
 	ln -s wp-config-sample.php public_html/wp-config.php
 	git add public_html/wp-config.php
 	vim public_html/wp-config.php
@@ -96,22 +104,34 @@ Then, on your local box:
 	git commit -am 'My settings.'
 
 	# Make, add, and commit any other changes you desire.
-	# NOTE: Put your files in the public_html directory and make that
+	# NOTE: Put your files in the "public_html" directory and make that
 	# the document root for your web server.
 
+	# Now hit the WordPress install on your local box in your browser.
+	# Go through the installation process.
+	# Activate your plugins, etc.
+
+	# Check if there's anything that needs adding/committing.  If so, do it.
+	git status
+	git add --all
+	git commit -am 'Other installation stuff.'
+
+	# Now set up the production release branch.
 	git checkout master
 	git merge dev34
 
-	# To deploy your changes, do this.
-	git push prod master
+	# Set "WP_DEBUG" to "false" in wp-config.php for production.
+	# And if you want to be super secure, use a lower-privileged MySQL
+	# user on the production machine.
+	vim public_html/wp-config.php
 
-	# To get any changes I and/or WordPress have made.
-	git checkout dev34
-	git pull wp
-	git merge wp34
-	git pull git_push_deployer wordpress
-	git checkout master
-	git merge dev34
+	git commit -m 'Production settings.' public_html/wp-config.php
+
+	# Now push the database and files up to production.
+	./utilities/push-with-database.sh
+
+	# In the future, if you just want to push files, do this
+	# (after merging changes into master from the development branch).
 	git push prod master
 
 
