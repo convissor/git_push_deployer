@@ -49,6 +49,7 @@ read -e
 
 git checkout "$git_branch_dev"
 "$dir_util/database-dump.sh" "$file_sql_dump"
+git add --ignore-errors "$file_sql_dump"
 git commit -m 'Latest local database.' "$file_sql_dump"
 id=`git log -n 1 --pretty=format:%H`
 
