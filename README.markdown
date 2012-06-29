@@ -87,10 +87,12 @@ Then, on your local box:
 
 	# Adjust WordPress settings.
 	#
-	# Improve your security by adding the following to wp-config.php:
-	# define('DISALLOW_UNFILTERED_HTML', true);
-	#
-	# On development boxes, set "WP_DEBUG" to "true" in wp-config.php.
+	# 1) Improve your security by adding the following to wp-config.php:
+	#    define('DISALLOW_UNFILTERED_HTML', true);
+	# 2) On development boxes, set "WP_DEBUG" to "true" in wp-config.php.
+	# 3) Change the $table_prefix.
+	# 4) Update the database authentication information.
+	# 5) Provide the "Unique Keys and Salts".
 	#
 	ln -s wp-config-sample.php public_html/wp-config.php
 	git add public_html/wp-config.php
