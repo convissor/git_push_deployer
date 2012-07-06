@@ -48,6 +48,7 @@ echo -n "Hit ENTER to proceed or CTRL-C to cancel..."
 read -e
 
 git checkout "$git_branch_dev"
+
 "$dir_util/database-dump.sh" "$file_sql_dump"
 git add --ignore-errors "$file_sql_dump"
 git commit -m 'Latest local database.' "$file_sql_dump"
@@ -55,10 +56,13 @@ id=`git log -n 1 --pretty=format:%H`
 
 git checkout "$git_branch_prod"
 git cherry-pick "$id"
+
 touch "$file_sql_push_flag"
 git add "$file_sql_push_flag"
 git commit -m 'Add database push flag.' "$file_sql_push_flag"
+
 git push "$remote" "$git_branch_prod"
+
 git rm "$file_sql_push_flag"
 git commit -m 'Remove database push flag.' "$file_sql_push_flag"
 
