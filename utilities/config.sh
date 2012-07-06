@@ -23,8 +23,10 @@ dir_util_name=`basename "$dir_util"`
 dir_base=`dirname "$dir_util"`
 dir_doc_root="$dir_base/public_html"
 dir_uploads="$dir_doc_root/wp-content/uploads"
+dir_backups="$dir_base/backups"
+
 file_sql_dump="$dir_util/database-dump.sql"
 file_sql_push_flag="$dir_util/database-push-flag"
-dir_backups="$dir_base/backups"
+
 site=`basename "$dir_base"`
 date=`date +%Y-%m-%d_%H-%M-%S`
