@@ -22,4 +22,9 @@ source "$dir_util/config.sh"
 # Make directories and files read-only, making attacks more difficult.
 "$dir_util/lock.sh"
 
+# Execute commands in the post actions list, if any.
+if [ -f "$file_actions_post" ] ; then
+	bash "$file_actions_post"
+fi
+
 echo "> >  Post-Deploy Script DONE"

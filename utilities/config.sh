@@ -27,6 +27,8 @@ dir_backups="$dir_base/backups"
 
 file_sql_dump="$dir_util/database-dump.sql"
 file_sql_push_flag="$dir_util/database-push-flag"
+file_actions_post="$dir_util/actions-post-deploy"
+file_disable_login="$dir_doc_root/wp-content/plugins/login-security-solution/utilities/disable_logins_setter.php"
 
 site=`basename "$dir_base"`
 date=`date +%Y-%m-%d_%H-%M-%S`
