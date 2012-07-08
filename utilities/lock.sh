@@ -24,4 +24,7 @@ find "$dir_doc_root" -type f -not -name \*.sh \
 find "$dir_doc_root" -type f -name \*.sh \
 	-exec chmod 550 {} \;
 
+# Keep admin passwords from being read by web server.
+chmod 600 "$dir_util/auth_info.sh"
+
 echo "> >  File system LOCKED."
