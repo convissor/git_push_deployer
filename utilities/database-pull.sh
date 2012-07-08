@@ -58,7 +58,7 @@ set -e
 
 user_host=`echo "$result" | sed -E 's@^.+ssh://([^/]+).*$@\1@'`
 dir_remote=`echo "$result" | sed -E 's@^.+ssh://[^/]+(.*)$@\1@'`
-cmd="ssh $user_host '$dir_remote$dir_util_name/help-database-pull.sh' $disable_logins"
+cmd="ssh $user_host '$dir_remote/$dir_util_name/help-database-pull.sh' $disable_logins"
 
 # Note: the remote helper script compresses the stream before sending it.
 if [ "$dest" = "-" ] ; then
