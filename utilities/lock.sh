@@ -13,7 +13,7 @@ fi
 
 
 dir_util="$(cd "$(dirname "$0")" && pwd)"
-source "$dir_util/config.sh"
+dir_doc_root="$dir_util/../public_html"
 
 echo "> >  Locking file system..."
 
