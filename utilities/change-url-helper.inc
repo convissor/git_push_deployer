@@ -30,7 +30,7 @@ if (false === $wpdb->query($query)) {
 $query = <<<EQ3
 SELECT option_id, option_name, option_value
 	FROM {$table_prefix}options
-	WHERE option_value LIKE '%$url_old%'
+	WHERE option_value LIKE '%$url_old/%'
 EQ3;
 $results = $wpdb->get_results($query, ARRAY_A);
 if (false === $results) {
@@ -70,7 +70,7 @@ function do_replace($data) {
 	if (is_serialized($data)) {
 		$data = do_replace(unserialize($data));
 	} elseif (is_scalar($data)) {
-		$data = str_replace($url_old, $url_new, $data);
+		$data = str_replace("$url_old/", "$url_new/", $data);
 	} elseif (is_object($data)) {
 		foreach ($data as $key => $value) {
 			$data->$key = do_replace($value);

@@ -8,5 +8,6 @@
  * @package git_push_deployer
  */
 
+// Do NOT put slashes on the end!
 $url_prod = 'https://live.example.org';
 $url_local = 'https://dev.example.org';
