@@ -37,7 +37,8 @@ if [ -f "$file_sql_push_flag" ] ; then
 	echo "" >> "$file_restore"
 	echo "bunzip2 '$file_sql_backup.bz2'" >> "$file_restore"
 	echo "source '$dir_util/config.sh'" >> "$file_restore"
-	echo 'mysql -u "$db_user" --password="$db_password" "$db_name" \\' >> "$file_restore"
+	echo "source '$dir_util/auth_info.sh'" >> "$file_restore"
+	echo 'mysql -u "$db_user" --password="$db_password" "$db_name" \' >> "$file_restore"
 	echo "    < '$file_sql_backup'" >> "$file_restore"
 
 	# Replace the database.
