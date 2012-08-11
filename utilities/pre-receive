@@ -36,12 +36,8 @@ function process () {
 	ref=$1
 	line=$2
 
-	rev_id_prior=${line%% *}
-	rev_id_prior=${rev_id_prior:0:10}
-
-	rev_id_new=${line:${#rev_id_prior}+1}
-	rev_id_new=${rev_id_new%% *}
-	rev_id_new=${rev_id_new:0:10}
+	rev_id_prior=${line:0:10}
+	rev_id_new=${line:41:10}
 
 	cmd_stash=
 
