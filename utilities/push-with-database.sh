@@ -68,6 +68,9 @@ echo ""
 echo "To change the remote, pass it in on the command line."
 echo "To change branch names, edit config.sh."
 echo ""
+echo "WARNING: this does not merge '$git_branch_dev' into '$git_branch_prod'."
+echo "You must merge desired changes manually before calling this script."
+echo ""
 echo -n "Hit ENTER to proceed or CTRL-C to cancel..."
 read -e
 
