@@ -84,4 +84,4 @@ function do_replace($data) {
 	return $data;
 }
 
-wp_cache_flush();
+wp_cache_init();
