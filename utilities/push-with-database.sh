@@ -78,6 +78,9 @@ git checkout "$git_branch_dev"
 
 php "$dir_util/database-garbage-collection.php"
 php "$dir_util/change-url-prod.php"
+if [ -n "$disable_logins" ] ; then
+	php "$file_disable_login" $disable_logins
+fi
 
 "$dir_util/database-dump.sh" "$file_sql_dump"
 git add --ignore-errors "$file_sql_dump"
@@ -93,21 +96,9 @@ touch "$file_sql_push_flag"
 git add "$file_sql_push_flag"
 git commit -m 'Add database push flag.' "$file_sql_push_flag"
 
-if [ -n "$disable_logins" ] ; then
-	remote_file_disable_login="$dir_remote/${file_disable_login:${#dir_base}+1:${#file_disable_login}}"
-	echo "php '$remote_file_disable_login' $disable_logins" > "$file_actions_post"
-	git add "$file_actions_post"
-	git commit -m 'Add post action script.' "$file_actions_post"
-fi
-
 git push "$remote" "$git_branch_prod"
 
 git rm "$file_sql_push_flag"
 git commit -m 'Remove database push flag.' "$file_sql_push_flag"
-
-if [ -n "$disable_logins" ] ; then
-	git rm "$file_actions_post"
-	git commit -m 'Remove post action script.' "$file_actions_post"
-fi
 
 git checkout "$git_branch_dev"
