@@ -66,7 +66,7 @@ Then, on your local box:
 
 	# Get WordPress.
 	git remote add -t 3.4-branch -f wp https://github.com/WordPress/WordPress
-	git checkout -b wp34 wp/3.4-branch
+	git checkout -b wp wp/3.4-branch
 
 	# Move WordPress into the public_html directory.
 	mkdir public_html
@@ -75,7 +75,7 @@ Then, on your local box:
 	git commit -am 'Move WP files into public_html.'
 
 	# Create your development branch.
-	git checkout -b dev34
+	git checkout -b dev
 
 	# Bring in the Git Push Deploy utilities.
 	git merge master
@@ -120,7 +120,7 @@ Then, on your local box:
 
 	# Now set up the production release branch.
 	git checkout master
-	git merge dev34
+	git merge dev
 
 	# Set "WP_DEBUG" to "false" in wp-config.php for production.
 	# And if you want to be super secure, use a lower-privileged MySQL
