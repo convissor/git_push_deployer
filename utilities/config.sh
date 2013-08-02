@@ -9,7 +9,7 @@ git_branch_prod=master
 git_remote_origin_url=https://github.com/WordPress/WordPress
 git_remote_origin=wp
 # The remote branch name that holds WP's release branch.
-git_branch_origin=3.4-branch
+git_branch_origin=3.6-branch
 # The local branch name for holding WP's release branch.
 git_branch_dev_merge=wp
 
